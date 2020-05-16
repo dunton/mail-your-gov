@@ -3,13 +3,7 @@ import styled from "styled-components";
 
 const Venmo = (props) => {
   const [active, toggleActive] = useState(false);
-  return (
-    <Container>
-      buy me a coffee
-      <br />
-      with Venmo
-    </Container>
-  );
+  return <Container>Venmo: @ryan_dunton</Container>;
 };
 
 const Container = styled.div`

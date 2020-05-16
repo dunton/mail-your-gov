@@ -3,10 +3,12 @@ import styled, { keyframes } from "styled-components";
 import axios from "axios";
 import Error from "./Error";
 import Button from "./Button";
+import { mobileBreakpoint } from "../config";
+import { stateData } from "../lib/stateData";
 
 const Editor = (props) => {
-  const [content, setContent] = useState("");
-  const [subject, setSubject] = useState("");
+  const [content, setContent] = useState("r");
+  const [subject, setSubject] = useState("r");
   const [name, setName] = useState("rico bosco");
   const [location, setLocation] = useState(false);
   const [foundLocation, setFoundLocation] = useState(false);
@@ -15,56 +17,6 @@ const Editor = (props) => {
   const [dropdown, toggleDropdown] = useState(false);
   const [contactInfo, setContactInfo] = useState(null);
   const [sending, setSending] = useState(false);
-
-  const stateData = [
-    { state: "Alabama", gov_name: "Kay Ivey", gov_email: "" },
-    { state: "Alaska", gov_name: "", gov_email: "" },
-    { state: "Arizona", gov_name: "Douglas Ducey", gov_email: "" },
-    { state: "Arkansas", gov_name: "Asa Hutchinson", gov_email: "" },
-    { state: "California", gov_name: "Gavin Newsom", gov_email: "" },
-    { state: "Colorado", gov_name: "Jared Polis", gov_email: "" },
-    { state: "Connecticut", gov_name: "Edward Lamont", gov_email: "" },
-    { state: "Delaware", gov_name: "John Carney", gov_email: "" },
-    { state: "Florida", gov_name: "Ronald DeSantis", gov_email: "" },
-    { state: "Georgia", gov_name: "Nathan Deal", gov_email: "" },
-    { state: "Hawaii", gov_name: "", gov_email: "" },
-    { state: "Idaho", gov_name: "", gov_email: "" },
-    { state: "Illinois", gov_name: "", gov_email: "" },
-    { state: "Iowa", gov_name: "", gov_email: "" },
-    { state: "Kansas", gov_name: "", gov_email: "" },
-    { state: "Kentucky", gov_name: "", gov_email: "" },
-    { state: "Lousiana", gov_name: "", gov_email: "" },
-    { state: "Maine", gov_name: "", gov_email: "" },
-    { state: "Maryland", gov_name: "", gov_email: "" },
-    { state: "Massachusetts", gov_name: "", gov_email: "" },
-    { state: "Michigan", gov_name: "", gov_email: "" },
-    { state: "Minnesota", gov_name: "", gov_email: "" },
-    { state: "Mississippi", gov_name: "", gov_email: "" },
-    { state: "Missouri", gov_name: "", gov_email: "" },
-    { state: "Montana", gov_name: "", gov_email: "" },
-    { state: "Nevada", gov_name: "", gov_email: "" },
-    { state: "New Hampshire", gov_name: "", gov_email: "" },
-    { state: "New Jersey", gov_name: "", gov_email: "" },
-    { state: "New Mexico", gov_name: "", gov_email: "" },
-    { state: "New York", gov_name: "Andrew Cuomo", gov_email: "cuomo@govs" },
-    { state: "North Carolina", gov_name: "", gov_email: "" },
-    { state: "North Dakota", gov_name: "", gov_email: "" },
-    { state: "Ohio", gov_name: "", gov_email: "" },
-    { state: "Oklahoma", gov_name: "", gov_email: "" },
-    { state: "Oregon", gov_name: "", gov_email: "" },
-    { state: "Rhode Island", gov_name: "", gov_email: "" },
-    { state: "South Carolina", gov_name: "", gov_email: "" },
-    { state: "South Dakota", gov_name: "", gov_email: "" },
-    { state: "Tennessee", gov_name: "", gov_email: "" },
-    { state: "Texas", gov_name: "", gov_email: "" },
-    { state: "Utah", gov_name: "", gov_email: "" },
-    { state: "Vermont", gov_name: "", gov_email: "" },
-    { state: "Virginia", gov_name: "", gov_email: "" },
-    { state: "Washington", gov_name: "", gov_email: "" },
-    { state: "West Virginia", gov_name: "", gov_email: "" },
-    { state: "Wisconsin", gov_name: "", gov_email: "" },
-    { state: "Wyoming", gov_name: "", gov_email: "" },
-  ];
 
   const stateArr = stateData.map((info) => info.state);
 
@@ -128,7 +80,13 @@ const Editor = (props) => {
 
   const sendEmail = () => {
     axios
-      .post("/api/sendEmail", { subject, content, name })
+      .post("/api/sendEmail", {
+        subject,
+        content,
+        name,
+        ...contactInfo,
+        location,
+      })
       .then(({ data }) => {
         const { success } = data;
         if (success) {
@@ -179,7 +137,7 @@ const Editor = (props) => {
   };
 
   return (
-    <Container>
+    <Container mobileBreakpoint={mobileBreakpoint}>
       <div>
         <div className="headline">
           <h1>Email Your Governor</h1>
@@ -198,7 +156,7 @@ const Editor = (props) => {
           <li>
             You can fill out the form below email your governor, which will send
             an email from mailyourgov@gmail.com. The only data I will be saving
-            from each email is who it was sent to.
+            from each email is what governor it was sent to.
           </li>
         </ol>
         <p>All fields are required.</p>
@@ -212,7 +170,11 @@ const Editor = (props) => {
             <div className="state-dropdown">
               <div>State:&nbsp;</div>
               <div>
-                {location || (
+                {(location && (
+                  <span onClick={() => toggleDropdown(!dropdown)}>
+                    {location}
+                  </span>
+                )) || (
                   <div
                     className="location-field"
                     onClick={() => toggleDropdown(!dropdown)}
@@ -238,13 +200,13 @@ const Editor = (props) => {
           </div>
           {location && (
             <div>
-              Governor Name:{" "}
+              Governor Name:&nbsp;
               {contactInfo && <span>{contactInfo.gov_name}</span>}
             </div>
           )}
           {location && (
             <div>
-              Governor Email:{" "}
+              Governor Email:&nbsp;
               {contactInfo && <span>{contactInfo.gov_email}</span>}
             </div>
           )}
@@ -295,7 +257,7 @@ const Container = styled.div`
   margin: auto;
   padding-bottom: 80px;
   .headline {
-    border-bottom: 1px solid grey;
+    border-bottom: 1px solid #26a69a;
     h1 {
       text-align: left;
       font-size: 48px;
@@ -321,17 +283,30 @@ const Container = styled.div`
     margin-top: 40px;
   }
 
+  input {
+    font-size: 26px !important;
+    margin: 0 0 1em !important;
+  }
+
   textarea {
     margin: 1em 0;
     min-height: 400px;
     height: auto;
     padding: 20px;
     border: 1px solid grey;
+    font-size: 26px;
+    &:focus {
+      outline-color: #26a69a;
+    }
   }
   .submission-fields {
     display: flex;
     justify-content: space-between;
     font-size: 24px;
+    margin-top: 2.5em;
+    @media screen and (max-width: ${(props) => props.mobileBreakpoint}px) {
+      flex-direction: column;
+    }
     button {
       background: aqua;
       color: white;
@@ -351,7 +326,7 @@ const Container = styled.div`
         i {
           height: 24px;
           width: 24px;
-          color: green;
+          color: #26a69a;
           animation: ${bob} 1s alternate infinite;
         }
       }
