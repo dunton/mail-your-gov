@@ -21,42 +21,48 @@ const Editor = (props) => {
   const stateArr = stateData.map((info) => info.state);
 
   // get location if possible
-  // useEffect(() => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(async ({ coords }) => {
-  //       const { latitude } = coords;
-  //       const { longitude } = coords;
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+        const { latitude } = coords;
+        const { longitude } = coords;
 
-  //       const res = await axios
-  //         .get(
-  //           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.MAPS_GEOLOCATION_KEY}`
-  //         )
-  //         .then(({ data }) => {
-  //           const { results } = data;
-  //           if (!results[0]) {
-  //             throw "no results";
-  //           }
-  //           const { address_components } = results[0];
-  //           let stateContact = null;
-  //           const locationObj = address_components.find(({ long_name }) => {
-  //             if (stateArr.indexOf(long_name.toLowerCase()) > -1) {
-  //               stateContact =
-  //                 stateData[stateArr.indexOf(long_name.toLowerCase())];
-  //             }
-  //             return stateArr.indexOf(long_name.toLowerCase()) > -1;
-  //           });
+        const res = await axios
+          .get(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.MAPS_GEOLOCATION_KEY}`
+          )
+          .then(({ data }) => {
+            const { results } = data;
+            if (!results[0]) {
+              throw "no results";
+            }
+            const { address_components } = results[0];
+            let stateContact = null;
+            const locationObj = address_components.find(({ long_name }) => {
+              if (stateArr.indexOf(long_name.toLowerCase()) > -1) {
+                stateContact =
+                  stateData[stateArr.indexOf(long_name.toLowerCase())];
+              }
+              return stateArr.indexOf(long_name.toLowerCase()) > -1;
+            });
 
-  //           setLocation(locationObj.long_name);
-  //           setFoundLocation(true);
-  //           const { gov_name, gov_email } = stateContact;
-  //           setContactInfo({ gov_email, gov_name });
-  //         })
-  //         .catch((err) => console.log(err));
-  //     });
-  //   } else {
-  //     console.error("Geolocation not supported");
-  //   }
-  // }, []);
+            setLocation(locationObj.long_name);
+            setFoundLocation(true);
+            const { gov_name, gov_email } = stateContact;
+            setContactInfo({ gov_email, gov_name });
+          })
+          .catch((err) => console.log(err));
+      });
+    } else {
+      console.error("Geolocation not supported");
+    }
+  }, []);
+
+  // if no gov_email open tab to contact_form
+  const openContactForm = () => {
+    // setContactInfo()
+    // window.open(contact_form, 'blank');
+  };
 
   const filterEmail = (content) => {
     const filteredWords = ["fuck", "shit", "gay", "fag", "ass"];
@@ -159,6 +165,10 @@ const Editor = (props) => {
             from each email is what governor it was sent to.
           </li>
         </ol>
+        <p>
+          If we don't have your govenor's direct email address we will open
+          their contact page in a new window.
+        </p>
         <p>All fields are required.</p>
         <p>Note: I have done my best to filter out profanity.</p>
       </div>
