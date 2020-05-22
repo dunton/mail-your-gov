@@ -7,9 +7,9 @@ import { mobileBreakpoint } from "../config";
 import { stateData } from "../lib/stateData";
 
 const Editor = (props) => {
-  const [content, setContent] = useState("r");
-  const [subject, setSubject] = useState("r");
-  const [name, setName] = useState("rico bosco");
+  const [content, setContent] = useState("");
+  const [subject, setSubject] = useState("");
+  const [name, setName] = useState("");
   const [location, setLocation] = useState(false);
   const [foundLocation, setFoundLocation] = useState(false);
   const [done, setDone] = useState(false);
@@ -49,7 +49,7 @@ const Editor = (props) => {
             setLocation(locationObj.long_name);
             setFoundLocation(true);
             const { gov_name, gov_email } = stateContact;
-            setContactInfo({ gov_email, gov_name });
+            populateContactFields(gov_email, gov_name);
           })
           .catch((err) => console.log(err));
       });
@@ -58,10 +58,21 @@ const Editor = (props) => {
     }
   }, []);
 
+  const populateContactFields = (gov_email, gov_name) => {
+    if (!gov_email) {
+      setContactInfo({ gov_email, gov_name });
+      setError(
+        `No direct email found, contact page be opened in another tab. If not you can visit the contact form at `
+      );
+      openContactForm();
+    } else {
+      setContactInfo({ gov_email, gov_name });
+    }
+  };
+
   // if no gov_email open tab to contact_form
   const openContactForm = () => {
-    // setContactInfo()
-    // window.open(contact_form, 'blank');
+    window.open("https://google.com", "blank");
   };
 
   const filterEmail = (content) => {
@@ -139,7 +150,7 @@ const Editor = (props) => {
       return info.state === state;
     });
     const { gov_name, gov_email } = stateObj;
-    setContactInfo({ gov_name, gov_email });
+    populateContactFields(gov_email, gov_name);
   };
 
   return (
@@ -209,19 +220,21 @@ const Editor = (props) => {
             </div>
           </div>
           {location && (
-            <div>
-              Governor Name:&nbsp;
+            <div className="contact-field-label">
+              Governor&nbsp;Name:&nbsp;
+              <br />
               {contactInfo && <span>{contactInfo.gov_name}</span>}
             </div>
           )}
           {location && (
-            <div>
-              Governor Email:&nbsp;
+            <div className="contact-field-label">
+              Governor&nbsp;Email:&nbsp;
+              <br />
               {contactInfo && <span>{contactInfo.gov_email}</span>}
             </div>
           )}
         </div>
-        {location && (
+        {location && contactInfo.gov_email && (
           <div className="input-fields">
             <input
               onChange={(e) => setName(e.target.value)}
@@ -266,6 +279,10 @@ const Container = styled.div`
   width: 80%;
   margin: auto;
   padding-bottom: 80px;
+  @media screen and (max-width: 978px) {
+    width: 100%;
+    padding: 0 20px 50px;
+  }
   .headline {
     border-bottom: 1px solid #26a69a;
     h1 {
@@ -291,6 +308,13 @@ const Container = styled.div`
 
   .input-fields {
     margin-top: 40px;
+  }
+
+  .contact-field-label br {
+    display: none;
+    @media screen and (max-width: 978px) {
+      display: block;
+    }
   }
 
   input {
